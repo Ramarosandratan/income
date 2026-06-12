@@ -1,0 +1,88 @@
+// Edge Function : invite-member
+// Crée un nouveau compte membre dans la famille du maître appelant.
+// Réservé au rôle « master » (vérifié via le JWT de l'appelant).
+//
+// Body attendu : { email: string, full_name: string, password?: string }
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  try {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const url = Deno.env.get("SUPABASE_URL")!;
+    const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Client « appelant » : sert à vérifier le rôle via RLS.
+    const caller = createClient(url, anon, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: me, error: meErr } = await caller
+      .from("profiles")
+      .select("family_id, role")
+      .single();
+
+    if (meErr || !me) {
+      return json({ error: "non authentifié" }, 401);
+    }
+    if (me.role !== "master") {
+      return json({ error: "réservé au maître" }, 403);
+    }
+
+    const { email, full_name, password } = await req.json();
+    if (!email || !full_name) {
+      return json({ error: "email et full_name requis" }, 400);
+    }
+
+    // Client admin (service role) : crée le compte et le profil.
+    const admin = createClient(url, service);
+    const tempPassword = password ?? crypto.randomUUID().slice(0, 12);
+
+    const { data: created, error: createErr } =
+      await admin.auth.admin.createUser({
+        email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: { full_name },
+      });
+    if (createErr || !created.user) {
+      return json({ error: createErr?.message ?? "échec création" }, 400);
+    }
+
+    const { error: profErr } = await admin.from("profiles").insert({
+      id: created.user.id,
+      family_id: me.family_id,
+      full_name,
+      role: "member",
+    });
+    if (profErr) {
+      // Rollback du compte si le profil échoue.
+      await admin.auth.admin.deleteUser(created.user.id);
+      return json({ error: profErr.message }, 400);
+    }
+
+    return json({
+      ok: true,
+      member_id: created.user.id,
+      temp_password: tempPassword,
+    });
+  } catch (e) {
+    return json({ error: String(e) }, 500);
+  }
+});
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}

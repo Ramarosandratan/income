@@ -1,0 +1,45 @@
+name: income
+
+packages:
+  - packages/**
+  - apps/**
+
+command:
+  bootstrap:
+    # Utilise les pub workspaces : une seule résolution pour tout le dépôt.
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    description: Analyse statique de tous les packages.
+    run: dart analyze --fatal-infos
+    exec:
+      concurrency: 1
+
+  test:
+    description: Lance les tests unitaires (packages qui en ont).
+    run: flutter test
+    exec:
+      concurrency: 1
+    packageFilters:
+      dirExists: test
+
+  format:
+    description: Formate tout le code Dart.
+    run: dart format .
+
+  run:desktop:
+    description: Lance l'app desktop (maître) sur Windows.
+    run: flutter run -d windows
+    exec:
+      concurrency: 1
+    packageFilters:
+      scope: income_desktop
+
+  run:mobile:
+    description: Lance l'app mobile (membre).
+    run: flutter run
+    exec:
+      concurrency: 1
+    packageFilters:
+      scope: income_mobile

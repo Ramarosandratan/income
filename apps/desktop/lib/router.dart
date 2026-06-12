@@ -1,0 +1,61 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:income_core/income_core.dart';
+
+import 'features/auth/login_screen.dart';
+import 'features/budgets/budgets_screen.dart';
+import 'features/dashboard/dashboard_screen.dart';
+import 'features/incomes/incomes_screen.dart';
+import 'features/members/members_screen.dart';
+import 'features/recurring/recurring_screen.dart';
+import 'features/reports/reports_screen.dart';
+import 'features/shell/desktop_shell.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/dashboard',
+    // Re-route à chaque changement d'auth.
+    refreshListenable: GoRouterRefreshStream(
+      ref.watch(authServiceProvider).onAuthStateChange,
+    ),
+    redirect: (context, state) {
+      final signedIn = ref.read(authServiceProvider).isSignedIn;
+      final loggingIn = state.matchedLocation == '/login';
+      if (!signedIn) return loggingIn ? null : '/login';
+      if (loggingIn) return '/dashboard';
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      ShellRoute(
+        builder: (_, __, child) => DesktopShell(child: child),
+        routes: [
+          GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
+          GoRoute(path: '/budgets', builder: (_, __) => const BudgetsScreen()),
+          GoRoute(path: '/incomes', builder: (_, __) => const IncomesScreen()),
+          GoRoute(path: '/recurring', builder: (_, __) => const RecurringScreen()),
+          GoRoute(path: '/members', builder: (_, __) => const MembersScreen()),
+          GoRoute(path: '/reports', builder: (_, __) => const ReportsScreen()),
+        ],
+      ),
+    ],
+  );
+});
+
+/// Adapte un Stream en Listenable pour go_router.
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _sub = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+  late final StreamSubscription<dynamic> _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}

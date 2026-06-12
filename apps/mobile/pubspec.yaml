@@ -1,0 +1,28 @@
+name: income_mobile
+description: Application mobile (membre) — suivi de mon budget et de mes dépenses.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.24.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  income_core:
+    path: ../../packages/core
+  flutter_riverpod: ^2.6.1
+  go_router: ^14.6.0
+  fl_chart: ^0.69.0
+  intl: ^0.20.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

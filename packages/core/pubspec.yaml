@@ -1,0 +1,24 @@
+name: income_core
+description: Modèles, accès données (Supabase) et logique métier partagés par les apps.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.24.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^2.8.0
+  flutter_riverpod: ^2.6.1
+  intl: ^0.20.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  # Tests de logique métier pure (exécutables via `dart test`, sans moteur Flutter).
+  test: ^1.25.0

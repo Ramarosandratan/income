@@ -1,0 +1,15 @@
+# Racine du workspace (pub workspaces — Dart 3.6+).
+# Les apps et packages partagent un unique pubspec.lock résolu ici.
+name: income_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - packages/core
+  - apps/mobile
+  - apps/desktop
+
+dev_dependencies:
+  melos: ^6.3.0
