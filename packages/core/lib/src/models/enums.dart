@@ -4,8 +4,8 @@ enum UserRole {
   master,
   member;
 
-  static UserRole fromString(String v) =>
-      UserRole.values.firstWhere((e) => e.name == v, orElse: () => UserRole.member);
+  static UserRole fromString(String v) => UserRole.values
+      .firstWhere((e) => e.name == v, orElse: () => UserRole.member);
 }
 
 /// Nature d'une catégorie ou d'un modèle récurrent.
@@ -13,8 +13,8 @@ enum EntryKind {
   expense,
   income;
 
-  static EntryKind fromString(String v) =>
-      EntryKind.values.firstWhere((e) => e.name == v, orElse: () => EntryKind.expense);
+  static EntryKind fromString(String v) => EntryKind.values
+      .firstWhere((e) => e.name == v, orElse: () => EntryKind.expense);
 }
 
 /// Type d'une dépense saisie.
@@ -23,8 +23,8 @@ enum ExpenseType {
   monthly,
   fixed;
 
-  static ExpenseType fromString(String v) =>
-      ExpenseType.values.firstWhere((e) => e.name == v, orElse: () => ExpenseType.daily);
+  static ExpenseType fromString(String v) => ExpenseType.values
+      .firstWhere((e) => e.name == v, orElse: () => ExpenseType.daily);
 
   String get labelFr => switch (this) {
         ExpenseType.daily => 'Journalière',
@@ -38,17 +38,22 @@ enum BudgetType {
   budget,
   fixed;
 
-  static BudgetType fromString(String v) =>
-      BudgetType.values.firstWhere((e) => e.name == v, orElse: () => BudgetType.budget);
+  static BudgetType fromString(String v) => BudgetType.values
+      .firstWhere((e) => e.name == v, orElse: () => BudgetType.budget);
 }
 
-/// Fréquence d'un modèle récurrent.
+/// Fréquence d'un revenu ou modèle récurrent.
 enum Frequency {
   weekly,
   monthly;
 
-  static Frequency fromString(String v) =>
-      Frequency.values.firstWhere((e) => e.name == v, orElse: () => Frequency.monthly);
+  static Frequency fromString(String v) => Frequency.values
+      .firstWhere((e) => e.name == v, orElse: () => Frequency.monthly);
+
+  String get labelFr => switch (this) {
+        Frequency.weekly => 'Hebdomadaire',
+        Frequency.monthly => 'Mensuel',
+      };
 }
 
 /// Type d'alerte.

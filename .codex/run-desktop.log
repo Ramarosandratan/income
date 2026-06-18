@@ -53,3 +53,7 @@ A Dart VM Service on Chrome is available at: http://127.0.0.1:63791/BN-UfH8XwTg=
 The Flutter DevTools debugger and profiler on Chrome is available at: http://127.0.0.1:63791/BN-UfH8XwTg=/devtools/?uri=ws://127.0.0.1:63791/BN-UfH8XwTg=/ws
 Starting application from main method in: org-dartlang-app:/web_entrypoint.dart.
 supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+Starting application from main method in: org-dartlang-app:/web_entrypoint.dart.
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+Starting application from main method in: org-dartlang-app:/web_entrypoint.dart.
+supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 

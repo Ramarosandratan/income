@@ -24,7 +24,8 @@ class IncomesScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text('Revenus', style: Theme.of(context).textTheme.headlineMedium),
+              Text('Revenus',
+                  style: Theme.of(context).textTheme.headlineMedium),
               const Spacer(),
               FilledButton.icon(
                 icon: const Icon(Icons.add),
@@ -98,6 +99,7 @@ class IncomesScreen extends ConsumerWidget {
     final source = TextEditingController();
     final amount = TextEditingController();
     String? memberId; // null = foyer
+    Frequency frequency = Frequency.monthly;
     final members = (await ref.read(membersProvider.future))
         .where((m) => m.role == UserRole.member)
         .toList();
@@ -122,8 +124,19 @@ class IncomesScreen extends ConsumerWidget {
                   controller: amount,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  decoration:
-                      const InputDecoration(labelText: 'Montant', suffixText: '€'),
+                  decoration: const InputDecoration(
+                      labelText: 'Montant', suffixText: '€'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<Frequency>(
+                  initialValue: frequency,
+                  decoration: const InputDecoration(labelText: 'Fréquence'),
+                  items: [
+                    for (final f in Frequency.values)
+                      DropdownMenuItem(value: f, child: Text(f.labelFr)),
+                  ],
+                  onChanged: (v) =>
+                      setState(() => frequency = v ?? Frequency.monthly),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String?>(
@@ -158,6 +171,7 @@ class IncomesScreen extends ConsumerWidget {
                         source: source.text.trim(),
                         amount: value,
                         period: period,
+                        frequency: frequency,
                         createdAt: DateTime.now(),
                       ),
                       profile.familyId,

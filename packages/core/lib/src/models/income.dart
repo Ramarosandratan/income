@@ -1,3 +1,4 @@
+import '../models/enums.dart';
 import '../utils/period.dart';
 
 /// Un revenu, rattaché au foyer (memberId null) ou à un membre précis.
@@ -9,7 +10,7 @@ class Income {
     required this.source,
     required this.amount,
     required this.period,
-    this.isRecurring = false,
+    required this.frequency,
     required this.createdAt,
   });
 
@@ -19,7 +20,7 @@ class Income {
   final String source;
   final double amount;
   final DateTime period; // 1er du mois
-  final bool isRecurring;
+  final Frequency frequency;
   final DateTime createdAt;
 
   factory Income.fromJson(Map<String, dynamic> json) => Income(
@@ -29,7 +30,8 @@ class Income {
         source: json['source'] as String,
         amount: (json['amount'] as num).toDouble(),
         period: Period.fromSql(json['period'] as String),
-        isRecurring: json['is_recurring'] as bool? ?? false,
+        frequency:
+            Frequency.fromString(json['frequency'] as String? ?? 'monthly'),
         createdAt: DateTime.parse(json['created_at'] as String),
       );
 
@@ -39,6 +41,6 @@ class Income {
         'source': source,
         'amount': amount,
         'period': Period.toSql(period),
-        'is_recurring': isRecurring,
+        'frequency': frequency.name,
       };
 }
