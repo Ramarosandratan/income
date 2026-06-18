@@ -13,7 +13,8 @@ final categoriesProvider = FutureProvider<List<Category>>(
 /// Dépenses du membre en temps réel (toutes périodes ; filtrées à l'affichage).
 final myExpensesStreamProvider = StreamProvider<List<Expense>>((ref) {
   final id = ref.watch(myIdProvider);
-  if (id == null) return const Stream.empty();
+  // Liste vide (pas Stream.empty, qui resterait bloqué en "loading").
+  if (id == null) return Stream.value(const <Expense>[]);
   return ref.watch(expenseRepositoryProvider).watchForMember(id);
 });
 
@@ -53,7 +54,7 @@ final mySummaryProvider = Provider<MemberBudgetSummary?>((ref) {
 /// Alertes du membre, en temps réel.
 final myAlertsProvider = StreamProvider<List<Alert>>((ref) {
   final id = ref.watch(myIdProvider);
-  if (id == null) return const Stream.empty();
+  if (id == null) return Stream.value(const <Alert>[]);
   return ref.watch(alertRepositoryProvider).watch(id);
 });
 

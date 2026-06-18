@@ -19,13 +19,17 @@ port = 54323
 enabled = true
 site_url = "http://localhost:3000"
 # En local on n'envoie pas d'email : on autorise la connexion sans confirmation.
-enable_confirmations = false
 
 [auth.email]
 enable_signup = true
+# En local, on désactive la confirmation d'email avant connexion.
+enable_confirmations = false
 
 [realtime]
 enabled = true
 
 [edge_runtime]
 enabled = true
+
+[functions.invite-member]
+verify_jwt = false

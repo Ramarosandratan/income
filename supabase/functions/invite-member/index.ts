@@ -8,12 +8,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Max-Age": "86400",
 };
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
@@ -26,9 +30,19 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
+    // Id de l'appelant (depuis le JWT) : indispensable car un maître voit TOUS
+    // les profils de sa famille — sans ce filtre, .single() échouerait dès qu'un
+    // membre existe.
+    const { data: userData } = await caller.auth.getUser();
+    const callerId = userData.user?.id;
+    if (!callerId) {
+      return json({ error: "non authentifié" }, 401);
+    }
+
     const { data: me, error: meErr } = await caller
       .from("profiles")
       .select("family_id, role")
+      .eq("id", callerId)
       .single();
 
     if (meErr || !me) {

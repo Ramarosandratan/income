@@ -10,5 +10,9 @@ if (-not (Test-Path $envFile)) {
 }
 
 Push-Location (Join-Path $root 'apps/desktop')
-flutter run -d $Device --dart-define-from-file="$envFile"
+if ($Device -eq 'chrome') {
+  flutter run -d $Device --web-port=3000 --dart-define-from-file="$envFile"
+} else {
+  flutter run -d $Device --dart-define-from-file="$envFile"
+}
 Pop-Location

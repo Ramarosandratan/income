@@ -19,16 +19,36 @@ class MembersScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('Membres', style: Theme.of(context).textTheme.headlineMedium),
-              const Spacer(),
-              FilledButton.icon(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final title = Text(
+                'Membres',
+                style: Theme.of(context).textTheme.headlineMedium,
+                overflow: TextOverflow.ellipsis,
+              );
+              final inviteButton = FilledButton.icon(
                 icon: const Icon(Icons.person_add),
                 label: const Text('Inviter un membre'),
                 onPressed: () => _showInvite(context, ref),
-              ),
-            ],
+              );
+              if (constraints.maxWidth < 360) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    title,
+                    const SizedBox(height: 8),
+                    inviteButton,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: title),
+                  const SizedBox(width: 12),
+                  inviteButton,
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -39,7 +59,8 @@ class MembersScreen extends ConsumerWidget {
                   for (final m in list)
                     Card(
                       child: ListTile(
-                        leading: CircleAvatar(child: Text(_initials(m.fullName))),
+                        leading:
+                            CircleAvatar(child: Text(_initials(m.fullName))),
                         title: Text(m.fullName),
                         subtitle: Text(m.isMaster ? 'Maître' : 'Membre'),
                         trailing: m.isMaster
@@ -47,8 +68,7 @@ class MembersScreen extends ConsumerWidget {
                             : TextButton.icon(
                                 icon: const Icon(Icons.receipt_long),
                                 label: const Text('Voir les dépenses'),
-                                onPressed: () =>
-                                    _showExpenses(context, ref, m),
+                                onPressed: () => _showExpenses(context, ref, m),
                               ),
                       ),
                     ),

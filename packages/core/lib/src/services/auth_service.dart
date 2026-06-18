@@ -21,23 +21,27 @@ class AuthService {
   }) =>
       _client.auth.signInWithPassword(email: email, password: password);
 
-  /// Crée le tout premier compte (le maître) et sa famille via une RPC
-  /// transactionnelle côté base.
+  /// Crée le tout premier compte (le maître) et sa famille.
+  ///
+  /// Le nom complet et le nom de famille sont passés dans les métadonnées de
+  /// l'inscription : un trigger `on_auth_user_created` crée la famille, le
+  /// profil maître et les catégories par défaut dans la transaction GoTrue.
+  /// Avantages : fonctionne même avec la confirmation d'email activée (aucune
+  /// session requise) et reste atomique (pas de compte orphelin).
   Future<void> signUpMaster({
     required String email,
     required String password,
     required String fullName,
     required String familyName,
   }) async {
-    final res = await _client.auth.signUp(email: email, password: password);
-    final userId = res.user?.id;
-    if (userId == null) {
+    final res = await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {'full_name': fullName, 'family_name': familyName},
+    );
+    if (res.user == null) {
       throw const AuthException('Échec de la création du compte.');
     }
-    await _client.rpc('bootstrap_family', params: {
-      'p_full_name': fullName,
-      'p_family_name': familyName,
-    });
   }
 
   Future<void> signOut() => _client.auth.signOut();

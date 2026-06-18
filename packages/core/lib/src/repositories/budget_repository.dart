@@ -20,17 +20,20 @@ class BudgetRepository {
         .toList();
   }
 
-  /// Crée ou met à jour une enveloppe (unicité sur member/categorie/période).
+  /// Crée ou met à jour une enveloppe (unicité sur member/catégorie/période).
+  ///
+  /// Passe par la RPC `upsert_budget` : les index d'unicité étant *partiels*
+  /// (un pour category_id non null, un pour null), un ON CONFLICT classique ne
+  /// peut pas les inférer. La RPC fait un update-sinon-insert NULL-safe.
   Future<Budget> upsert(Budget budget, String familyId) async {
-    final row = await _client
-        .from('budgets')
-        .upsert(
-          budget.toUpsert(familyId),
-          onConflict: 'member_id,category_id,period',
-        )
-        .select()
-        .single();
-    return Budget.fromJson(row);
+    final row = await _client.rpc('upsert_budget', params: {
+      'p_member': budget.memberId,
+      'p_category': budget.categoryId,
+      'p_period': Period.toSql(budget.period),
+      'p_amount': budget.amount,
+      'p_type': budget.type.name,
+    });
+    return Budget.fromJson(Map<String, dynamic>.from(row as Map));
   }
 
   Future<void> delete(String id) async {
