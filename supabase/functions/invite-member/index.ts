@@ -69,7 +69,10 @@ Deno.serve(async (req) => {
         user_metadata: { full_name },
       });
     if (createErr || !created.user) {
-      return json({ error: createErr?.message ?? "échec création" }, 400);
+      const msg = friendlyAuthError(createErr?.message ?? "") ||
+        createErr?.message ||
+        "Échec de la création du compte.";
+      return json({ error: msg }, 400);
     }
 
     const { error: profErr } = await admin.from("profiles").insert({
@@ -99,4 +102,22 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...cors, "Content-Type": "application/json" },
   });
+}
+
+function friendlyAuthError(message: string): string | null {
+  const m = message.toLowerCase();
+  if (m.includes("user already registered") ||
+      (m.includes("duplicate") && m.includes("email"))) {
+    return "Un compte existe déjà avec cet email.";
+  }
+  if (m.includes("password should be at least")) {
+    return "Le mot de passe doit contenir au moins 6 caractères.";
+  }
+  if (m.includes("invalid email")) {
+    return "Format d'email invalide.";
+  }
+  if (m.includes("rate limit")) {
+    return "Trop de tentatives. Veuillez réessayer dans quelques minutes.";
+  }
+  return null;
 }

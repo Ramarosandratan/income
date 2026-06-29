@@ -140,9 +140,12 @@ end $$;
 do $$
 declare new_uid uuid := gen_random_uuid(); v_fam uuid; v_role text; n_cat int;
 begin
-  insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, created_at, updated_at)
+  insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, created_at, updated_at,
+                          confirmation_token, email_change, email_change_token_new, email_change_token_current,
+                          recovery_token, phone_change, phone_change_token)
   values (new_uid, 'chef@test.fr',
-          '{"family_name":"Famille Test","full_name":"Chef Test"}', '{}', now(), now());
+          '{"family_name":"Famille Test","full_name":"Chef Test"}', '{}', now(), now(),
+          '', '', '', '', '', '', '');
   select family_id, role into v_fam, v_role from public.profiles where id = new_uid;
   if v_fam is null then raise exception 'T7 aucun profil créé par le trigger d''onboarding'; end if;
   if v_role <> 'master' then raise exception 'T7 rôle attendu master, obtenu %', v_role; end if;

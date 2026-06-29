@@ -2,6 +2,20 @@
 -- ║ Correctifs (revue de code)                                              ║
 -- ╚══════════════════════════════════════════════════════════════════════╝
 
+-- ── #0 : Grants de base pour les rôles Supabase ──────────────────────────────
+-- Sans ces grants, les politiques RLS ne peuvent pas s'appliquer car le rôle
+-- n'a aucun privilège de base (SELECT, INSERT, etc.) sur les tables.
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables    in schema public to anon, authenticated, service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
+grant all on all functions in schema public to anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  grant all on tables    to anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  grant all on sequences to anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  grant all on functions to anon, authenticated, service_role;
+
 -- ── #1 : upsert de budget compatible avec les index uniques PARTIELS ──────────
 -- L'ON CONFLICT (member_id,category_id,period) ne peut pas inférer un index
 -- partiel sans son prédicat. On passe par une RPC NULL-safe (is not distinct

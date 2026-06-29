@@ -64,7 +64,7 @@ class RecurringScreen extends ConsumerWidget {
                           title: Text(t.label),
                           subtitle: Text(
                             '${Money.format(t.amount)} · '
-                            '${t.frequency == Frequency.monthly ? 'mensuel' : 'hebdo'} · '
+                            '${t.frequencyLabel} · '
                             '${byId[t.memberId]?.fullName ?? 'Membre'} · '
                             'prochaine : ${Period.labelFr(t.nextRun)}',
                           ),
@@ -97,6 +97,8 @@ class RecurringScreen extends ConsumerWidget {
     String? memberId = members.isEmpty ? null : members.first.id;
     String? categoryId;
     var frequency = Frequency.monthly;
+    int? frequencyDay;
+    int yearlyMonth = DateTime.now().month;
     var kind = EntryKind.expense;
 
     if (!context.mounted || memberId == null) return;
@@ -113,8 +115,8 @@ class RecurringScreen extends ConsumerWidget {
                 children: [
                   TextField(
                       controller: label,
-                      decoration:
-                          const InputDecoration(labelText: 'Libellé (ex. Loyer)')),
+                      decoration: const InputDecoration(
+                          labelText: 'Libellé (ex. Loyer)')),
                   const SizedBox(height: 12),
                   TextField(
                     controller: amount,
@@ -150,7 +152,8 @@ class RecurringScreen extends ConsumerWidget {
                     initialValue: categoryId,
                     decoration: const InputDecoration(labelText: 'Catégorie'),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('Aucune')),
+                      const DropdownMenuItem(
+                          value: null, child: Text('Aucune')),
                       for (final c in cats)
                         DropdownMenuItem(value: c.id, child: Text(c.name)),
                     ],
@@ -165,9 +168,89 @@ class RecurringScreen extends ConsumerWidget {
                           value: Frequency.monthly, child: Text('Mensuelle')),
                       DropdownMenuItem(
                           value: Frequency.weekly, child: Text('Hebdomadaire')),
+                      DropdownMenuItem(
+                          value: Frequency.yearly, child: Text('Annuelle')),
                     ],
-                    onChanged: (v) => setState(() => frequency = v!),
+                    onChanged: (v) {
+                      setState(() {
+                        frequency = v!;
+                        frequencyDay = null;
+                      });
+                    },
                   ),
+                  const SizedBox(height: 12),
+                  // Sélecteur de jour selon la fréquence
+                  if (frequency == Frequency.weekly)
+                    DropdownButtonFormField<int>(
+                      initialValue: frequencyDay ?? 1,
+                      decoration: const InputDecoration(
+                          labelText: 'Jour de la semaine'),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text('Lundi')),
+                        DropdownMenuItem(value: 2, child: Text('Mardi')),
+                        DropdownMenuItem(value: 3, child: Text('Mercredi')),
+                        DropdownMenuItem(value: 4, child: Text('Jeudi')),
+                        DropdownMenuItem(value: 5, child: Text('Vendredi')),
+                        DropdownMenuItem(value: 6, child: Text('Samedi')),
+                        DropdownMenuItem(value: 7, child: Text('Dimanche')),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => frequencyDay = v!),
+                    ),
+                  if (frequency == Frequency.monthly)
+                    DropdownButtonFormField<int>(
+                      initialValue: frequencyDay ?? 1,
+                      decoration: const InputDecoration(
+                          labelText: 'Jour du mois'),
+                      items: [
+                        for (int d = 1; d <= 31; d++)
+                          DropdownMenuItem(value: d, child: Text('$d')),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => frequencyDay = v!),
+                    ),
+                  if (frequency == Frequency.yearly)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            initialValue: frequencyDay ?? 1,
+                            decoration: const InputDecoration(
+                                labelText: 'Jour'),
+                            items: [
+                              for (int d = 1; d <= 31; d++)
+                                DropdownMenuItem(value: d, child: Text('$d')),
+                            ],
+                            onChanged: (v) =>
+                                setState(() => frequencyDay = v!),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            initialValue: DateTime.now().month,
+                            decoration: const InputDecoration(
+                                labelText: 'Mois'),
+                            items: const [
+                              DropdownMenuItem(value: 1, child: Text('Janvier')),
+                              DropdownMenuItem(value: 2, child: Text('Février')),
+                              DropdownMenuItem(value: 3, child: Text('Mars')),
+                              DropdownMenuItem(value: 4, child: Text('Avril')),
+                              DropdownMenuItem(value: 5, child: Text('Mai')),
+                              DropdownMenuItem(value: 6, child: Text('Juin')),
+                              DropdownMenuItem(value: 7, child: Text('Juillet')),
+                              DropdownMenuItem(value: 8, child: Text('Août')),
+                              DropdownMenuItem(value: 9, child: Text('Septembre')),
+                              DropdownMenuItem(value: 10, child: Text('Octobre')),
+                              DropdownMenuItem(value: 11, child: Text('Novembre')),
+                              DropdownMenuItem(value: 12, child: Text('Décembre')),
+                            ],
+                            onChanged: (v) =>
+                                setState(() => yearlyMonth = v!),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -182,8 +265,36 @@ class RecurringScreen extends ConsumerWidget {
                     double.tryParse(amount.text.replaceAll(',', '.')) ?? 0;
                 if (label.text.trim().isEmpty || value <= 0) return;
                 final profile = await ref.read(currentProfileProvider.future);
-                final nextRun =
-                    Period.next(ref.read(selectedPeriodProvider));
+
+                // Calculer nextRun en fonction de la fréquence et du jour
+                final now = DateTime.now();
+                DateTime nextRun;
+                if (frequency == Frequency.yearly && frequencyDay != null) {
+                  final d = frequencyDay!;
+                  final y = now.month > yearlyMonth ||
+                          (now.month == yearlyMonth && now.day >= d)
+                      ? now.year + 1
+                      : now.year;
+                  final lastDay = DateTime(y, yearlyMonth + 1, 0).day;
+                  nextRun = DateTime(y, yearlyMonth, d.clamp(1, lastDay).toInt());
+                } else if (frequency == Frequency.monthly &&
+                    frequencyDay != null) {
+                  final d = frequencyDay!;
+                  final nextMonth = DateTime(now.year, now.month + 1, 1);
+                  final lastDay = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+                  nextRun = DateTime(
+                      nextMonth.year, nextMonth.month, d.clamp(1, lastDay).toInt());
+                } else if (frequency == Frequency.weekly &&
+                    frequencyDay != null) {
+                  final d = frequencyDay!;
+                  // Prochaine occurrence du jour de la semaine
+                  // Dart: DateTime.weekday 1=lun...7=dim, frequencyDay: 1=lun...7=dim
+                  final diff = (d - now.weekday + 7) % 7;
+                  nextRun = DateTime(now.year, now.month, now.day + (diff == 0 ? 7 : diff));
+                } else {
+                  nextRun = Period.next(ref.read(selectedPeriodProvider));
+                }
+
                 await ref.read(recurringRepositoryProvider).upsert(
                       RecurringTemplate(
                         id: '',
@@ -194,6 +305,7 @@ class RecurringScreen extends ConsumerWidget {
                         amount: value,
                         kind: kind,
                         frequency: frequency,
+                        frequencyDay: frequencyDay,
                         nextRun: nextRun,
                       ),
                       profile.familyId,

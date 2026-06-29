@@ -5,7 +5,8 @@ import 'package:income_core/income_core.dart';
 import '../../data.dart';
 import '../../widgets.dart';
 
-/// Vue d'ensemble du foyer pour le mois sélectionné.
+/// Vue d'ensemble du foyer pour le mois sélectionné, avec comparaison
+/// mois précédent.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -16,10 +17,52 @@ class DashboardScreen extends ConsumerWidget {
     final summaries = ref.watch(memberSummariesProvider);
     final members = ref.watch(membersProvider);
 
+    // Données du mois précédent pour la comparaison
+    final prevIncomes = ref.watch(previousPeriodIncomesProvider);
+    final prevExpenses = ref.watch(previousPeriodExpensesProvider);
+    final prevPeriod = ref.watch(previousPeriodProvider);
+
     final totalIncome =
         incomes.valueOrNull?.fold<double>(0, (s, i) => s + i.amount) ?? 0;
     final totalSpent =
         expenses.valueOrNull?.fold<double>(0, (s, e) => s + e.amount) ?? 0;
+
+    final prevTotalIncome =
+        prevIncomes.valueOrNull?.fold<double>(0, (s, i) => s + i.amount) ?? 0;
+    final prevTotalSpent =
+        prevExpenses.valueOrNull?.fold<double>(0, (s, e) => s + e.amount) ?? 0;
+
+    final prevLabel = Period.labelFr(prevPeriod);
+
+    String? comparisonText(double current, double previous) {
+      if (previous == 0) return null;
+      final pct = ((current - previous) / previous * 100);
+      final arrow = pct >= 0 ? '\u25b2' : '\u25bc';
+      return '$arrow ${pct.toStringAsFixed(1).replaceAll('-', '')} % vs $prevLabel';
+    }
+
+    /// Couleur sémantique : pour les revenus/solde, une hausse = vert ;
+    /// pour les dépenses, une hausse = rouge.
+    Color? compColor(bool isExpense, double current, double previous) {
+      if (previous == 0) return null;
+      final pct = (current - previous) / previous;
+      // Dépenses : hausse = mauvais (rouge), baisse = bon (vert)
+      // Revenus/solde : hausse = bon (vert), baisse = mauvais (rouge)
+      final isGood = isExpense ? pct < 0 : pct >= 0;
+      return isGood ? Colors.green.shade700 : Colors.red.shade700;
+    }
+
+    final incomeComp = comparisonText(totalIncome, prevTotalIncome);
+    final expenseComp = comparisonText(totalSpent, prevTotalSpent);
+
+    // Pour le solde : on compare le solde du mois vs le solde du mois précédent
+    final balance = totalIncome - totalSpent;
+    final prevBalance = prevTotalIncome - prevTotalSpent;
+    final balanceComp = comparisonText(balance, prevBalance);
+
+    final incomeColor = compColor(false, totalIncome, prevTotalIncome);
+    final expenseColor = compColor(true, totalSpent, prevTotalSpent);
+    final balanceColor = compColor(false, balance, prevBalance);
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -34,23 +77,27 @@ class DashboardScreen extends ConsumerWidget {
                     label: 'Revenus du mois',
                     value: Money.format(totalIncome),
                     icon: Icons.trending_up,
-                    color: Colors.teal)),
+                    color: Colors.teal,
+                    comparison: incomeComp,
+                    comparisonColor: incomeColor)),
             const SizedBox(width: 16),
             Expanded(
                 child: StatCard(
                     label: 'Dépenses du mois',
                     value: Money.format(totalSpent),
                     icon: Icons.trending_down,
-                    color: Colors.deepOrange)),
+                    color: Colors.deepOrange,
+                    comparison: expenseComp,
+                    comparisonColor: expenseColor)),
             const SizedBox(width: 16),
             Expanded(
                 child: StatCard(
                     label: 'Solde',
-                    value: Money.format(totalIncome - totalSpent),
+                    value: Money.format(balance),
                     icon: Icons.account_balance,
-                    color: totalIncome - totalSpent >= 0
-                        ? Colors.green
-                        : Colors.red)),
+                    color: balance >= 0 ? Colors.green : Colors.red,
+                    comparison: balanceComp,
+                    comparisonColor: balanceColor)),
           ],
         ),
         const SizedBox(height: 28),

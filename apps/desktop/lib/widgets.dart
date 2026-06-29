@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Carte de statistique (titre + valeur + icône).
+/// Carte de statistique (titre + valeur + icône + comparaison).
 class StatCard extends StatelessWidget {
   const StatCard({
     required this.label,
     required this.value,
     required this.icon,
     this.color,
+    this.comparison,
+    this.comparisonColor,
     super.key,
   });
 
@@ -15,6 +17,16 @@ class StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color? color;
+
+  /// Texte de comparaison optionnel, ex. « ▲ 12,5 % vs juin 2026 ».
+  /// Si [comparisonColor] est fourni, cette couleur est utilisée ; sinon
+  /// la couleur est déduite de la flèche (vert pour ▲, rouge pour ▼).
+  final String? comparison;
+
+  /// Couleur explicite pour le texte de comparaison. Prioritaire sur la
+  /// détection automatique par flèche (utile pour les dépenses : une
+  /// hausse = rouge, pas vert).
+  final Color? comparisonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +53,19 @@ class StatCard extends StatelessWidget {
                           .textTheme
                           .headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w600)),
+                  if (comparison != null) ...[
+                    const SizedBox(height: 4),
+                    Text(comparison!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: comparisonColor ??
+                                  (comparison!.startsWith('\u25b2')
+                                      ? Colors.green.shade700
+                                      : comparison!.startsWith('\u25bc')
+                                          ? Colors.red.shade700
+                                          : null),
+                            )),
+                  ],
                 ],
               ),
             ),

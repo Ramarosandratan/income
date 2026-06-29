@@ -6,9 +6,6 @@ import 'package:income_core/income_core.dart';
 import '../../data.dart';
 import '../../widgets.dart';
 
-final savingsProvider = FutureProvider<List<SavingsGoal>>(
-    (ref) => ref.watch(savingsRepositoryProvider).list());
-
 /// Graphiques (répartition, comparaison) + objectifs d'épargne.
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
@@ -68,12 +65,10 @@ class ReportsScreen extends ConsumerWidget {
                 child: AsyncView(
                   value: expenses,
                   builder: (list) {
-                    final memberList =
-                        members.valueOrNull ?? const <Profile>[];
+                    final memberList = members.valueOrNull ?? const <Profile>[];
                     final totals = <String, double>{};
                     for (final e in list) {
-                      totals[e.memberId] =
-                          (totals[e.memberId] ?? 0) + e.amount;
+                      totals[e.memberId] = (totals[e.memberId] ?? 0) + e.amount;
                     }
                     if (memberList.isEmpty) {
                       return const Center(child: Text('Aucun membre.'));
@@ -288,7 +283,8 @@ class _GoalTile extends ConsumerWidget {
         content: TextField(
           controller: amount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Montant', suffixText: '€'),
+          decoration:
+              const InputDecoration(labelText: 'Montant', suffixText: '€'),
         ),
         actions: [
           TextButton(
@@ -299,7 +295,9 @@ class _GoalTile extends ConsumerWidget {
               final value =
                   double.tryParse(amount.text.replaceAll(',', '.')) ?? 0;
               if (value <= 0) return;
-              await ref.read(savingsRepositoryProvider).contribute(goal.id, value);
+              await ref
+                  .read(savingsRepositoryProvider)
+                  .contribute(goal.id, value);
               ref.invalidate(savingsProvider);
               if (context.mounted) Navigator.pop(context);
             },

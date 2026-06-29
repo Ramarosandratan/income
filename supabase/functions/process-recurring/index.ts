@@ -39,6 +39,7 @@ Deno.serve(async (_req) => {
         amount: t.amount,
         period: firstOfMonth(today),
         is_recurring: true,
+        frequency: t.frequency,
       });
     } else {
       await db.from("expenses").insert({
@@ -49,6 +50,8 @@ Deno.serve(async (_req) => {
         note: t.label,
         spent_at: today.toISOString(),
         type: "fixed",
+        frequency: t.frequency,
+        frequency_day: t.frequency_day ?? null,
         recurring_template_id: t.id,
       });
     }
@@ -56,7 +59,7 @@ Deno.serve(async (_req) => {
 
     await db
       .from("recurring_templates")
-      .update({ next_run: advance(t.next_run, t.frequency) })
+      .update({ next_run: advance(t.next_run, t.frequency, t.frequency_day) })
       .eq("id", t.id);
   }
 
@@ -71,15 +74,34 @@ function firstOfMonth(d: Date): string {
     .slice(0, 10);
 }
 
-function advance(date: string, frequency: string): string {
+function advance(date: string, frequency: string, frequencyDay?: number | null): string {
   const d = new Date(date + "T00:00:00Z");
+
   if (frequency === "weekly") {
-    d.setUTCDate(d.getUTCDate() + 7);
+    if (frequencyDay != null && frequencyDay >= 1 && frequencyDay <= 7) {
+      // Avancer au prochain jour de la semaine spécifié
+      // JS: 0=Dim, 1=Lun, ... 6=Sam. frequencyDay: 1=Lun ... 7=Dim
+      const jsDay = frequencyDay === 7 ? 0 : frequencyDay;
+      const diff = (jsDay - d.getUTCDay() + 7) % 7;
+      if (diff === 0) {
+        // Déjà le bon jour, on avance d'une semaine
+        d.setUTCDate(d.getUTCDate() + 7);
+      } else {
+        d.setUTCDate(d.getUTCDate() + diff);
+      }
+    } else {
+      d.setUTCDate(d.getUTCDate() + 7);
+    }
     return d.toISOString().slice(0, 10);
   }
+
+  if (frequency === "yearly") {
+    d.setUTCFullYear(d.getUTCFullYear() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
   // Mensuel : avancer d'un mois en bornant le jour à la fin du mois cible
-  // (sinon le 31 janvier déborderait sur le 3 mars).
-  const day = d.getUTCDate();
+  const day = frequencyDay ?? d.getUTCDate();
   const year = d.getUTCFullYear();
   const month = d.getUTCMonth() + 1;
   const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();

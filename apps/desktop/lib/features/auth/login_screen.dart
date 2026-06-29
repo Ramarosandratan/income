@@ -29,7 +29,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  String? _validate() {
+    if (_email.text.trim().isEmpty) return 'Veuillez saisir un email.';
+    if (!_email.text.trim().contains('@')) return 'Format d\'email invalide.';
+    if (_password.text.isEmpty) return 'Veuillez saisir un mot de passe.';
+    if (_password.text.length < 6) {
+      return 'Le mot de passe doit contenir au moins 6 caractères.';
+    }
+    if (_createMode) {
+      if (_fullName.text.trim().isEmpty) return 'Veuillez saisir votre nom.';
+      if (_familyName.text.trim().isEmpty) {
+        return 'Veuillez saisir un nom de famille.';
+      }
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
+    final validationError = _validate();
+    if (validationError != null) {
+      setState(() => _error = validationError);
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -50,7 +71,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _createMode = false;
           _password.clear();
           _info =
-              'Un email de confirmation a été envoyé à $email. Vérifiez votre boîte mail, puis connectez-vous.';
+              'Compte créé avec succès ! Vous pouvez maintenant vous connecter.';
         });
       } else {
         await auth.signIn(
@@ -116,9 +137,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
-                    Text(_error!,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.error)),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline,
+                              size: 20,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _error!,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onErrorContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                   if (_info != null) ...[
                     const SizedBox(height: 12),

@@ -8,6 +8,7 @@ class Alert {
     required this.kind,
     required this.message,
     this.read = false,
+    this.period,
     required this.createdAt,
   });
 
@@ -16,6 +17,7 @@ class Alert {
   final AlertKind kind;
   final String message;
   final bool read;
+  final DateTime? period; // 1er du mois, nullable pour les anciennes alertes
   final DateTime createdAt;
 
   factory Alert.fromJson(Map<String, dynamic> json) => Alert(
@@ -24,6 +26,9 @@ class Alert {
         kind: AlertKind.fromString(json['kind'] as String),
         message: json['message'] as String,
         read: json['read'] as bool? ?? false,
+        period: json['period'] != null
+            ? DateTime.parse(json['period'] as String)
+            : null,
         createdAt: DateTime.parse(json['created_at'] as String),
       );
 }

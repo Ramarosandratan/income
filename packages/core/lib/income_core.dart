@@ -6,6 +6,12 @@ library;
 export 'src/models/alert.dart';
 export 'src/models/budget.dart';
 export 'src/models/budget_summary.dart';
+export 'src/models/calendrier/action_override.dart';
+export 'src/models/calendrier/depense.dart';
+export 'src/models/calendrier/depense_override.dart';
+export 'src/models/calendrier/frequence.dart';
+export 'src/models/calendrier/nature_montant.dart';
+export 'src/models/calendrier/occurrence_resolu.dart';
 export 'src/models/category.dart';
 export 'src/models/enums.dart';
 export 'src/models/expense.dart';
@@ -28,6 +34,7 @@ export 'src/repositories/savings_repository.dart';
 // Services
 export 'src/services/auth_service.dart';
 export 'src/services/budget_calculator.dart';
+export 'src/services/calendar_engine.dart';
 
 // Supabase
 export 'src/supabase/supabase_config.dart';

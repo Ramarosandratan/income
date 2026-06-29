@@ -23,7 +23,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  String? _validate() {
+    if (_email.text.trim().isEmpty) return 'Veuillez saisir un email.';
+    if (!_email.text.trim().contains('@')) return 'Format d\'email invalide.';
+    if (_password.text.isEmpty) return 'Veuillez saisir un mot de passe.';
+    if (_password.text.length < 6) {
+      return 'Le mot de passe doit contenir au moins 6 caractères.';
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
+    final validationError = _validate();
+    if (validationError != null) {
+      setState(() => _error = validationError);
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -73,9 +88,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),
-                Text(_error!,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error)),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .errorContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline,
+                          size: 20,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onErrorContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _error!,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onErrorContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
               const SizedBox(height: 24),
               FilledButton(

@@ -16,17 +16,22 @@
 -- ── Comptes d'authentification ───────────────────────────────────────────────
 insert into auth.users
   (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-   created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+   created_at, updated_at, raw_app_meta_data, raw_user_meta_data,
+   confirmation_token, email_change, email_change_token_new, email_change_token_current,
+   recovery_token, phone_change, phone_change_token)
 values
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-2222-2222-222222222222', 'authenticated', 'authenticated',
    'parent@demo.test', crypt('password', gen_salt('bf')), now(), now(), now(),
-   '{"provider":"email","providers":["email"]}', '{}'),
+   '{"provider":"email","providers":["email"]}', '{}',
+   '', '', '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333333', 'authenticated', 'authenticated',
    'alice@demo.test', crypt('password', gen_salt('bf')), now(), now(), now(),
-   '{"provider":"email","providers":["email"]}', '{}'),
+   '{"provider":"email","providers":["email"]}', '{}',
+   '', '', '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '44444444-4444-4444-4444-444444444444', 'authenticated', 'authenticated',
    'bruno@demo.test', crypt('password', gen_salt('bf')), now(), now(), now(),
-   '{"provider":"email","providers":["email"]}', '{}');
+   '{"provider":"email","providers":["email"]}', '{}',
+   '', '', '', '', '', '', '');
 
 insert into auth.identities
   (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)

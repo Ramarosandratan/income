@@ -1,6 +1,5 @@
 import '../models/budget.dart';
 import '../models/budget_summary.dart';
-import '../models/enums.dart';
 import '../models/expense.dart';
 
 /// Logique métier pure (sans I/O) de rapprochement budgets ↔ dépenses.
@@ -76,9 +75,4 @@ class BudgetCalculator {
     }
     return map;
   }
-
-  /// Total des dépenses fixes (charges récurrentes) d'une liste.
-  double totalFixed(List<Expense> expenses) => expenses
-      .where((e) => e.type == ExpenseType.fixed)
-      .fold<double>(0, (s, e) => s + e.amount);
 }

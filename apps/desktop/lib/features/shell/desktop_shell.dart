@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:income_core/income_core.dart';
 
+import '../../data.dart';
+
 /// Cadre principal : rail de navigation + en-tête (famille, sélecteur de mois).
 class DesktopShell extends ConsumerWidget {
   const DesktopShell({required this.child, super.key});
@@ -11,9 +13,12 @@ class DesktopShell extends ConsumerWidget {
   static const _destinations = [
     ('/dashboard', Icons.dashboard, 'Tableau de bord'),
     ('/budgets', Icons.account_balance_wallet, 'Budgets'),
+    ('/expenses', Icons.receipt_long, 'Dépenses'),
     ('/incomes', Icons.payments, 'Revenus'),
     ('/recurring', Icons.autorenew, 'Dépenses fixes'),
+    ('/calendar', Icons.calendar_month, 'Calendrier'),
     ('/members', Icons.group, 'Membres'),
+    ('/alerts', Icons.notifications, 'Alertes'),
     ('/reports', Icons.bar_chart, 'Rapports'),
   ];
 
@@ -22,6 +27,7 @@ class DesktopShell extends ConsumerWidget {
     final location = GoRouterState.of(context).matchedLocation;
     final index = _destinations.indexWhere((d) => location.startsWith(d.$1));
     final profile = ref.watch(currentProfileProvider).valueOrNull;
+    final unreadCount = ref.watch(unreadFamilyAlertsCountProvider);
 
     return Scaffold(
       body: Row(
@@ -65,7 +71,20 @@ class DesktopShell extends ConsumerWidget {
             destinations: [
               for (final d in _destinations)
                 NavigationRailDestination(
-                  icon: Icon(d.$2),
+                  icon: d.$2 == Icons.notifications
+                      ? Badge(
+                          isLabelVisible: unreadCount > 0,
+                          label: Text('$unreadCount'),
+                          child: const Icon(Icons.notifications_outlined),
+                        )
+                      : Icon(d.$2),
+                  selectedIcon: d.$2 == Icons.notifications
+                      ? Badge(
+                          isLabelVisible: unreadCount > 0,
+                          label: Text('$unreadCount'),
+                          child: const Icon(Icons.notifications),
+                        )
+                      : Icon(d.$2),
                   label: Text(d.$3),
                 ),
             ],

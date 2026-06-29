@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:income_core/income_core.dart';
 
+import 'features/alerts/alerts_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/budgets/budgets_screen.dart';
+import 'features/calendar/calendar_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
+import 'features/expenses/expenses_screen.dart';
 import 'features/incomes/incomes_screen.dart';
 import 'features/members/members_screen.dart';
 import 'features/recurring/recurring_screen.dart';
@@ -35,9 +38,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
           GoRoute(path: '/budgets', builder: (_, __) => const BudgetsScreen()),
+          GoRoute(path: '/expenses', builder: (_, __) => const ExpensesScreen()),
           GoRoute(path: '/incomes', builder: (_, __) => const IncomesScreen()),
           GoRoute(path: '/recurring', builder: (_, __) => const RecurringScreen()),
+          GoRoute(path: '/calendar', builder: (_, __) => const CalendarScreen()),
           GoRoute(path: '/members', builder: (_, __) => const MembersScreen()),
+          GoRoute(path: '/alerts', builder: (_, __) => const AlertsScreen()),
           GoRoute(path: '/reports', builder: (_, __) => const ReportsScreen()),
         ],
       ),

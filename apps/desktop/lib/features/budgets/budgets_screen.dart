@@ -164,8 +164,8 @@ class _BudgetRow extends StatefulWidget {
 }
 
 class _BudgetRowState extends State<_BudgetRow> {
-  late final TextEditingController _ctrl =
-      TextEditingController(text: widget.initial == 0 ? '' : '${widget.initial}');
+  late final TextEditingController _ctrl = TextEditingController(
+      text: widget.initial == 0 ? '' : '${widget.initial}');
   bool _saving = false;
 
   @override
@@ -198,8 +198,10 @@ class _BudgetRowState extends State<_BudgetRow> {
             Expanded(
               child: TextField(
                 controller: _ctrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(suffixText: '€', isDense: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration:
+                    const InputDecoration(suffixText: '€', isDense: true),
                 onSubmitted: (_) => _save(),
               ),
             ),

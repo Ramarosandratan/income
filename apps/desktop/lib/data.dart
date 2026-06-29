@@ -49,8 +49,42 @@ final memberSummariesProvider =
   }).toList();
 });
 
+final savingsProvider = FutureProvider<List<SavingsGoal>>(
+    (ref) => ref.watch(savingsRepositoryProvider).list());
+
+/// Alertes de toute la famille, en temps réel (pour le maître).
+final familyAlertsProvider = StreamProvider<List<Alert>>((ref) {
+  final profile = ref.watch(currentProfileProvider).valueOrNull;
+  if (profile == null) return Stream.value(const <Alert>[]);
+  // watchForFamily() utilise la RLS pour filtrer par family_id du master.
+  return ref.watch(alertRepositoryProvider).watchForFamily();
+});
+
+/// Nombre d'alertes non lues (pour le badge de navigation).
+final unreadFamilyAlertsCountProvider = Provider<int>((ref) {
+  final alerts = ref.watch(familyAlertsProvider).valueOrNull ?? const [];
+  return alerts.where((a) => !a.read).length;
+});
+
+/// Mois précédent dérivé de la période sélectionnée.
+final previousPeriodProvider = Provider<DateTime>(
+    (ref) => Period.previous(ref.watch(selectedPeriodProvider)));
+
+final previousPeriodExpensesProvider = FutureProvider<List<Expense>>((ref) async {
+  final period = ref.watch(previousPeriodProvider);
+  final b = _monthBounds(period);
+  return ref.watch(expenseRepositoryProvider).list(from: b.from, to: b.to);
+});
+
+final previousPeriodIncomesProvider = FutureProvider<List<Income>>((ref) {
+  final period = ref.watch(previousPeriodProvider);
+  return ref.watch(incomeRepositoryProvider).listForPeriod(period);
+});
+
 /// Invalide tous les providers dépendant des données (après une mutation).
 void refreshAll(WidgetRef ref) {
+  ref.invalidate(previousPeriodExpensesProvider);
+  ref.invalidate(previousPeriodIncomesProvider);
   ref.invalidate(periodExpensesProvider);
   ref.invalidate(periodBudgetsProvider);
   ref.invalidate(periodIncomesProvider);

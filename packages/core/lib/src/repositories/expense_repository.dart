@@ -40,6 +40,8 @@ class ExpenseRepository {
       'note': expense.note,
       'spent_at': expense.spentAt.toIso8601String(),
       'type': expense.type.name,
+      if (expense.frequency != null) 'frequency': expense.frequency!.name else 'frequency': null,
+      if (expense.frequencyDay != null) 'frequency_day': expense.frequencyDay else 'frequency_day': null,
     }).eq('id', expense.id);
   }
 
