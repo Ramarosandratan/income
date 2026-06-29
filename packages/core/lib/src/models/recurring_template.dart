@@ -13,6 +13,7 @@ class RecurringTemplate {
     this.kind = EntryKind.expense,
     this.frequency = Frequency.monthly,
     this.frequencyDay,
+    this.daysOfWeek,
     required this.nextRun,
     this.active = true,
   });
@@ -32,6 +33,10 @@ class RecurringTemplate {
   /// - yearly → 1…31 (jour du mois, mois = next_run)
   final int? frequencyDay;
 
+  /// Jours de la semaine sélectionnés (1=lundi … 7=dimanche).
+  /// Utilisé pour "tous les jours" ou "jours sélectionnés".
+  final List<int>? daysOfWeek;
+
   final DateTime nextRun;
   final bool active;
 
@@ -46,6 +51,9 @@ class RecurringTemplate {
         kind: EntryKind.fromString(json['kind'] as String),
         frequency: Frequency.fromString(json['frequency'] as String),
         frequencyDay: json['frequency_day'] as int?,
+        daysOfWeek: json['days_of_week'] != null
+            ? (json['days_of_week'] as List).cast<int>()
+            : null,
         nextRun: DateTime.parse(json['next_run'] as String),
         active: json['active'] as bool? ?? true,
       );
@@ -59,6 +67,7 @@ class RecurringTemplate {
         'kind': kind.name,
         'frequency': frequency.name,
         if (frequencyDay != null) 'frequency_day': frequencyDay,
+        if (daysOfWeek != null) 'days_of_week': daysOfWeek,
         'next_run': nextRun.toIso8601String(),
         'active': active,
       };
@@ -66,9 +75,14 @@ class RecurringTemplate {
   /// Libellé lisible de la fréquence, ex. « Mensuel le 15 » ou « Hebdo lun ».
   String get frequencyLabel {
     final base = frequency.labelFr;
+    if (daysOfWeek != null && daysOfWeek!.isNotEmpty) {
+      return '${frequency.shortLabel} ${daysOfWeek!.map(EnumUtils.dayOfWeekLabel).join(', ')}';
+    }
     if (frequencyDay == null) return base;
     return switch (frequency) {
-      Frequency.weekly => '${frequency.shortLabel} ${EnumUtils.dayOfWeekLabel(frequencyDay!)}',
+      Frequency.daily => base,
+      Frequency.weekly =>
+        '${frequency.shortLabel} ${EnumUtils.dayOfWeekLabel(frequencyDay!)}',
       Frequency.monthly => '$base le $frequencyDay',
       Frequency.yearly => '$base le $frequencyDay/${nextRun.month}',
     };

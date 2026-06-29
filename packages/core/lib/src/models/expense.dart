@@ -96,9 +96,12 @@ class Expense {
     if (frequency == null) return '—';
     if (frequencyDay == null) return frequency!.labelFr;
     return switch (frequency!) {
-      Frequency.weekly => '${frequency!.shortLabel} ${EnumUtils.dayOfWeekLabel(frequencyDay!)}',
+      Frequency.daily => frequency!.labelFr,
+      Frequency.weekly =>
+        '${frequency!.shortLabel} ${EnumUtils.dayOfWeekLabel(frequencyDay!)}',
       Frequency.monthly => '${frequency!.labelFr} le $frequencyDay',
-      Frequency.yearly => '${frequency!.labelFr} le $frequencyDay/${spentAt.month}',
+      Frequency.yearly =>
+        '${frequency!.labelFr} le $frequencyDay/${spentAt.month}',
     };
   }
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pwsh *)",
+      "Bash(timeout *)",
+      "Bash(type *)",
+      "Bash(supabase *)",
+      "Bash(psql *)",
+      "Bash(set *)"
+    ]
+  },
+  "$version": 4
+}

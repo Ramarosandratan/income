@@ -1,9 +1,6 @@
 -- ╔══════════════════════════════════════════════════════════════════════╗
--- ║ Fréquence étendue : yearly + frequency_day                          ║
+-- ║ Ajout de frequency_day aux templates et dépenses                    ║
 -- ╚══════════════════════════════════════════════════════════════════════╝
-
--- Ajouter 'yearly' à l'enum frequency
-alter type public.frequency add value 'yearly';
 
 -- Ajouter frequency_day aux templates récurrents
 -- weekly   → 1=lundi … 7=dimanche

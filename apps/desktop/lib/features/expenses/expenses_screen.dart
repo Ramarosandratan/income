@@ -61,16 +61,14 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                   label: const Text('Nouvelle dépense'),
                   onPressed: () => _addExpense(context),
                 ),
-              if (_currentTab == 0)
-                const SizedBox(width: 8),
+              if (_currentTab == 0) const SizedBox(width: 8),
               if (_currentTab == 0)
                 OutlinedButton.icon(
                   icon: const Icon(Icons.category, size: 18),
                   label: const Text('Catégories'),
                   onPressed: () => _manageCategories(context),
                 ),
-              if (_currentTab == 0)
-                const SizedBox(width: 8),
+              if (_currentTab == 0) const SizedBox(width: 8),
               if (_currentTab == 1)
                 FilledButton.icon(
                   icon: const Icon(Icons.add, size: 18),
@@ -120,8 +118,10 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
       for (final c in categories.valueOrNull ?? const <Category>[]) c.id: c
     };
 
-    final expenseCats =
-        categories.valueOrNull?.where((c) => c.kind == EntryKind.expense).toList() ?? [];
+    final expenseCats = categories.valueOrNull
+            ?.where((c) => c.kind == EntryKind.expense)
+            .toList() ??
+        [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,8 +146,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                     for (final m in members.valueOrNull ?? [])
                       DropdownMenuItem(value: m.id, child: Text(m.fullName)),
                   ],
-                  onChanged: (v) =>
-                      setState(() => _filterMemberId = v),
+                  onChanged: (v) => setState(() => _filterMemberId = v),
                 ),
               ),
               const SizedBox(width: 12),
@@ -165,11 +164,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                     const DropdownMenuItem(
                         value: null, child: Text('Toutes les catégories')),
                     for (final c in expenseCats)
-                      DropdownMenuItem(
-                          value: c.id, child: Text(c.name)),
+                      DropdownMenuItem(value: c.id, child: Text(c.name)),
                   ],
-                  onChanged: (v) =>
-                      setState(() => _filterCategoryId = v),
+                  onChanged: (v) => setState(() => _filterCategoryId = v),
                 ),
               ),
               const SizedBox(width: 12),
@@ -179,8 +176,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       value: ExpenseType.daily, label: Text('Journalière')),
                   ButtonSegment(
                       value: ExpenseType.monthly, label: Text('Mensuelle')),
-                  ButtonSegment(
-                      value: ExpenseType.fixed, label: Text('Fixe')),
+                  ButtonSegment(value: ExpenseType.fixed, label: Text('Fixe')),
                 ],
                 selected: _filterTypes,
                 onSelectionChanged: (s) =>
@@ -248,10 +244,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
               if (_searchQuery.isNotEmpty) {
                 filtered = filtered.where((e) {
                   final note = (e.note ?? '').toLowerCase();
-                  final cat =
-                      catById[e.categoryId]?.name.toLowerCase() ?? '';
-                  final member =
-                      byId[e.memberId]?.fullName.toLowerCase() ?? '';
+                  final cat = catById[e.categoryId]?.name.toLowerCase() ?? '';
+                  final member = byId[e.memberId]?.fullName.toLowerCase() ?? '';
                   return note.contains(_searchQuery) ||
                       cat.contains(_searchQuery) ||
                       member.contains(_searchQuery);
@@ -262,8 +256,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                   ? a.spentAt.compareTo(b.spentAt)
                   : b.spentAt.compareTo(a.spentAt));
 
-              final total =
-                  filtered.fold<double>(0, (s, e) => s + e.amount);
+              final total = filtered.fold<double>(0, (s, e) => s + e.amount);
 
               if (filtered.isEmpty) {
                 return Center(
@@ -289,12 +282,11 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 children: [
                   // En-tête du tableau
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(8)),
                     ),
@@ -318,8 +310,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                         for (final e in filtered)
                           _ExpenseRow(
                             expense: e,
-                            memberName:
-                                byId[e.memberId]?.fullName ?? 'Inconnu',
+                            memberName: byId[e.memberId]?.fullName ?? 'Inconnu',
                             categoryName: catById[e.categoryId]?.name,
                             categoryIcon: catById[e.categoryId]?.icon,
                             categoryColor: catById[e.categoryId]?.color,
@@ -333,9 +324,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(8)),
                     ),
@@ -381,8 +371,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
       value: templates,
       builder: (list) {
         if (list.isEmpty) {
-          return const Center(
-              child: Text('Aucune dépense fixe enregistrée.'));
+          return const Center(child: Text('Aucune dépense fixe enregistrée.'));
         }
         return ListView(
           children: [
@@ -470,7 +459,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 // Membre
                 DropdownButtonFormField<String?>(
                   initialValue: memberId,
-                  decoration: const InputDecoration(labelText: 'Membre', isDense: true),
+                  decoration:
+                      const InputDecoration(labelText: 'Membre', isDense: true),
                   items: [
                     for (final m in memberOptions)
                       DropdownMenuItem(value: m.id, child: Text(m.fullName)),
@@ -492,11 +482,10 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 // Catégorie
                 DropdownButtonFormField<String?>(
                   initialValue: categoryId,
-                  decoration:
-                      const InputDecoration(labelText: 'Catégorie', isDense: true),
+                  decoration: const InputDecoration(
+                      labelText: 'Catégorie', isDense: true),
                   items: [
-                    const DropdownMenuItem(
-                        value: null, child: Text('Aucune')),
+                    const DropdownMenuItem(value: null, child: Text('Aucune')),
                     for (final c in expenseCats)
                       DropdownMenuItem(value: c.id, child: Text(c.name)),
                   ],
@@ -527,8 +516,8 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 // Fréquence
                 DropdownButtonFormField<Frequency?>(
                   initialValue: frequency,
-                  decoration:
-                      const InputDecoration(labelText: 'Fréquence', isDense: true),
+                  decoration: const InputDecoration(
+                      labelText: 'Fréquence', isDense: true),
                   items: [
                     const DropdownMenuItem(
                         value: null, child: Text('Ponctuelle')),
@@ -557,8 +546,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       DropdownMenuItem(value: 6, child: Text('Samedi')),
                       DropdownMenuItem(value: 7, child: Text('Dimanche')),
                     ],
-                    onChanged: (v) =>
-                        setState(() => frequencyDay = v!),
+                    onChanged: (v) => setState(() => frequencyDay = v!),
                   ),
                 if (frequency == Frequency.monthly)
                   DropdownButtonFormField<int>(
@@ -569,8 +557,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       for (int d = 1; d <= 31; d++)
                         DropdownMenuItem(value: d, child: Text('$d')),
                     ],
-                    onChanged: (v) =>
-                        setState(() => frequencyDay = v!),
+                    onChanged: (v) => setState(() => frequencyDay = v!),
                   ),
                 const SizedBox(height: 12),
                 // Date
@@ -614,8 +601,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                     double.tryParse(amountCtrl.text.replaceAll(',', '.')) ?? 0;
                 if (value <= 0 || memberId == null) return;
 
-                final profile =
-                    await ref.read(currentProfileProvider.future);
+                final profile = await ref.read(currentProfileProvider.future);
                 await ref.read(expenseRepositoryProvider).add(
                       Expense(
                         id: '',
@@ -658,6 +644,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
     String? categoryId;
     var frequency = Frequency.monthly;
     int? frequencyDay;
+    List<int>? daysOfWeek;
     int yearlyMonth = DateTime.now().month;
     var kind = EntryKind.expense;
 
@@ -725,9 +712,12 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                     decoration: const InputDecoration(labelText: 'Fréquence'),
                     items: const [
                       DropdownMenuItem(
-                          value: Frequency.monthly, child: Text('Mensuelle')),
+                          value: Frequency.daily,
+                          child: Text('Tous les jours')),
                       DropdownMenuItem(
                           value: Frequency.weekly, child: Text('Hebdomadaire')),
+                      DropdownMenuItem(
+                          value: Frequency.monthly, child: Text('Mensuelle')),
                       DropdownMenuItem(
                           value: Frequency.yearly, child: Text('Annuelle')),
                     ],
@@ -735,38 +725,60 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       setState(() {
                         frequency = v!;
                         frequencyDay = null;
+                        daysOfWeek = null;
                       });
                     },
                   ),
                   const SizedBox(height: 12),
                   if (frequency == Frequency.weekly)
-                    DropdownButtonFormField<int>(
-                      initialValue: frequencyDay ?? 1,
-                      decoration: const InputDecoration(
-                          labelText: 'Jour de la semaine'),
-                      items: const [
-                        DropdownMenuItem(value: 1, child: Text('Lundi')),
-                        DropdownMenuItem(value: 2, child: Text('Mardi')),
-                        DropdownMenuItem(value: 3, child: Text('Mercredi')),
-                        DropdownMenuItem(value: 4, child: Text('Jeudi')),
-                        DropdownMenuItem(value: 5, child: Text('Vendredi')),
-                        DropdownMenuItem(value: 6, child: Text('Samedi')),
-                        DropdownMenuItem(value: 7, child: Text('Dimanche')),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Jours de la semaine',
+                            style: Theme.of(context).textTheme.labelMedium),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 4,
+                          children: [
+                            for (final day in [
+                              (1, 'Lun'),
+                              (2, 'Mar'),
+                              (3, 'Mer'),
+                              (4, 'Jeu'),
+                              (5, 'Ven'),
+                              (6, 'Sam'),
+                              (7, 'Dim')
+                            ])
+                              FilterChip(
+                                label: Text(day.$2,
+                                    style: const TextStyle(fontSize: 13)),
+                                selected: daysOfWeek?.contains(day.$1) ?? false,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    daysOfWeek ??= <int>[];
+                                    if (selected) {
+                                      daysOfWeek!.add(day.$1);
+                                    } else {
+                                      daysOfWeek!.remove(day.$1);
+                                    }
+                                    if (daysOfWeek!.isEmpty) daysOfWeek = null;
+                                  });
+                                },
+                              ),
+                          ],
+                        ),
                       ],
-                      onChanged: (v) =>
-                          setState(() => frequencyDay = v!),
                     ),
                   if (frequency == Frequency.monthly)
                     DropdownButtonFormField<int>(
                       initialValue: frequencyDay ?? 1,
-                      decoration: const InputDecoration(
-                          labelText: 'Jour du mois'),
+                      decoration:
+                          const InputDecoration(labelText: 'Jour du mois'),
                       items: [
                         for (int d = 1; d <= 31; d++)
                           DropdownMenuItem(value: d, child: Text('$d')),
                       ],
-                      onChanged: (v) =>
-                          setState(() => frequencyDay = v!),
+                      onChanged: (v) => setState(() => frequencyDay = v!),
                     ),
                   if (frequency == Frequency.yearly)
                     Row(
@@ -774,38 +786,43 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                         Expanded(
                           child: DropdownButtonFormField<int>(
                             initialValue: frequencyDay ?? 1,
-                            decoration: const InputDecoration(
-                                labelText: 'Jour'),
+                            decoration:
+                                const InputDecoration(labelText: 'Jour'),
                             items: [
                               for (int d = 1; d <= 31; d++)
                                 DropdownMenuItem(value: d, child: Text('$d')),
                             ],
-                            onChanged: (v) =>
-                                setState(() => frequencyDay = v!),
+                            onChanged: (v) => setState(() => frequencyDay = v!),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: DropdownButtonFormField<int>(
                             initialValue: DateTime.now().month,
-                            decoration: const InputDecoration(
-                                labelText: 'Mois'),
+                            decoration:
+                                const InputDecoration(labelText: 'Mois'),
                             items: const [
-                              DropdownMenuItem(value: 1, child: Text('Janvier')),
-                              DropdownMenuItem(value: 2, child: Text('Février')),
+                              DropdownMenuItem(
+                                  value: 1, child: Text('Janvier')),
+                              DropdownMenuItem(
+                                  value: 2, child: Text('Février')),
                               DropdownMenuItem(value: 3, child: Text('Mars')),
                               DropdownMenuItem(value: 4, child: Text('Avril')),
                               DropdownMenuItem(value: 5, child: Text('Mai')),
                               DropdownMenuItem(value: 6, child: Text('Juin')),
-                              DropdownMenuItem(value: 7, child: Text('Juillet')),
+                              DropdownMenuItem(
+                                  value: 7, child: Text('Juillet')),
                               DropdownMenuItem(value: 8, child: Text('Août')),
-                              DropdownMenuItem(value: 9, child: Text('Septembre')),
-                              DropdownMenuItem(value: 10, child: Text('Octobre')),
-                              DropdownMenuItem(value: 11, child: Text('Novembre')),
-                              DropdownMenuItem(value: 12, child: Text('Décembre')),
+                              DropdownMenuItem(
+                                  value: 9, child: Text('Septembre')),
+                              DropdownMenuItem(
+                                  value: 10, child: Text('Octobre')),
+                              DropdownMenuItem(
+                                  value: 11, child: Text('Novembre')),
+                              DropdownMenuItem(
+                                  value: 12, child: Text('Décembre')),
                             ],
-                            onChanged: (v) =>
-                                setState(() => yearlyMonth = v!),
+                            onChanged: (v) => setState(() => yearlyMonth = v!),
                           ),
                         ),
                       ],
@@ -834,19 +851,22 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       ? now.year + 1
                       : now.year;
                   final lastDay = DateTime(y, yearlyMonth + 1, 0).day;
-                  nextRun = DateTime(y, yearlyMonth, d.clamp(1, lastDay).toInt());
+                  nextRun =
+                      DateTime(y, yearlyMonth, d.clamp(1, lastDay).toInt());
                 } else if (frequency == Frequency.monthly &&
                     frequencyDay != null) {
                   final d = frequencyDay!;
                   final nextMonth = DateTime(now.year, now.month + 1, 1);
-                  final lastDay = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-                  nextRun = DateTime(
-                      nextMonth.year, nextMonth.month, d.clamp(1, lastDay).toInt());
+                  final lastDay =
+                      DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+                  nextRun = DateTime(nextMonth.year, nextMonth.month,
+                      d.clamp(1, lastDay).toInt());
                 } else if (frequency == Frequency.weekly &&
                     frequencyDay != null) {
                   final d = frequencyDay!;
                   final diff = (d - now.weekday + 7) % 7;
-                  nextRun = DateTime(now.year, now.month, now.day + (diff == 0 ? 7 : diff));
+                  nextRun = DateTime(
+                      now.year, now.month, now.day + (diff == 0 ? 7 : diff));
                 } else {
                   nextRun = Period.next(ref.read(selectedPeriodProvider));
                 }
@@ -862,6 +882,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                         kind: kind,
                         frequency: frequency,
                         frequencyDay: frequencyDay,
+                        daysOfWeek: daysOfWeek,
                         nextRun: nextRun,
                       ),
                       profile.familyId,
@@ -916,11 +937,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String?>(
                   initialValue: categoryId,
-                  decoration:
-                      const InputDecoration(labelText: 'Catégorie'),
+                  decoration: const InputDecoration(labelText: 'Catégorie'),
                   items: [
-                    const DropdownMenuItem(
-                        value: null, child: Text('Aucune')),
+                    const DropdownMenuItem(value: null, child: Text('Aucune')),
                     for (final c in expenseCats)
                       DropdownMenuItem(value: c.id, child: Text(c.name)),
                   ],
@@ -929,8 +948,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 const SizedBox(height: 12),
                 DropdownButtonFormField<ExpenseType>(
                   initialValue: type,
-                  decoration:
-                      const InputDecoration(labelText: 'Type'),
+                  decoration: const InputDecoration(labelText: 'Type'),
                   items: [
                     for (final t in ExpenseType.values)
                       DropdownMenuItem(value: t, child: Text(t.labelFr)),
@@ -940,8 +958,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Frequency?>(
                   initialValue: frequency,
-                  decoration:
-                      const InputDecoration(labelText: 'Fréquence'),
+                  decoration: const InputDecoration(labelText: 'Fréquence'),
                   items: [
                     const DropdownMenuItem(
                         value: null, child: Text('Ponctuelle')),
@@ -970,8 +987,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       DropdownMenuItem(value: 6, child: Text('Samedi')),
                       DropdownMenuItem(value: 7, child: Text('Dimanche')),
                     ],
-                    onChanged: (v) =>
-                        setState(() => frequencyDay = v!),
+                    onChanged: (v) => setState(() => frequencyDay = v!),
                   ),
                 if (frequency == Frequency.monthly)
                   DropdownButtonFormField<int>(
@@ -982,8 +998,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
                       for (int d = 1; d <= 31; d++)
                         DropdownMenuItem(value: d, child: Text('$d')),
                     ],
-                    onChanged: (v) =>
-                        setState(() => frequencyDay = v!),
+                    onChanged: (v) => setState(() => frequencyDay = v!),
                   ),
               ],
             ),
@@ -1025,8 +1040,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen>
   }
 
   // ── Suppression ───────────────────────────────────────────────────────
-  Future<void> _deleteExpense(
-      BuildContext context, Expense expense) async {
+  Future<void> _deleteExpense(BuildContext context, Expense expense) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1084,8 +1098,7 @@ class _ExpenseRow extends StatelessWidget {
       ),
       child: ListTile(
         dense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
         leading: CircleAvatar(
           radius: 16,
           backgroundColor: CategoryVisuals.color(categoryColor ?? 'FF9E9E9E')
@@ -1118,8 +1131,7 @@ class _ExpenseRow extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete_outline,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.error),
+                        size: 18, color: Theme.of(context).colorScheme.error),
                     tooltip: 'Supprimer',
                     onPressed: onDelete,
                   ),

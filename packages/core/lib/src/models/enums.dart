@@ -44,6 +44,7 @@ enum BudgetType {
 
 /// Fréquence d'un revenu, d'un modèle récurrent ou d'une dépense.
 enum Frequency {
+  daily,
   weekly,
   monthly,
   yearly;
@@ -52,6 +53,7 @@ enum Frequency {
       .firstWhere((e) => e.name == v, orElse: () => Frequency.monthly);
 
   String get labelFr => switch (this) {
+        Frequency.daily => 'Tous les jours',
         Frequency.weekly => 'Hebdomadaire',
         Frequency.monthly => 'Mensuel',
         Frequency.yearly => 'Annuel',
@@ -59,6 +61,7 @@ enum Frequency {
 
   /// Libellé court pour l'affichage dans les tableaux.
   String get shortLabel => switch (this) {
+        Frequency.daily => 'Quotidien',
         Frequency.weekly => 'Hebdo',
         Frequency.monthly => 'Mensuel',
         Frequency.yearly => 'Annuel',

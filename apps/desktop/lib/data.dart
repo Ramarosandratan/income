@@ -139,11 +139,14 @@ void refreshAll(WidgetRef ref) {
 
 Depense _templateToDepense(RecurringTemplate t) {
   final type = switch (t.frequency) {
+    Frequency.daily => TypeRecurrence.journalier,
     Frequency.weekly => TypeRecurrence.hebdomadaire,
     Frequency.monthly || Frequency.yearly => TypeRecurrence.mensuel,
   };
   List<int>? params;
-  if (t.frequencyDay != null) {
+  if (t.daysOfWeek != null && t.daysOfWeek!.isNotEmpty) {
+    params = t.daysOfWeek!;
+  } else if (t.frequencyDay != null) {
     params = [t.frequencyDay!];
   } else if (t.frequency == Frequency.monthly) {
     params = [1];
@@ -158,18 +161,22 @@ Depense _templateToDepense(RecurringTemplate t) {
     natureMontant: NatureMontant.fixe,
     montantParDefaut: t.amount,
     dateDebut: dateDebut,
-    frequence: Frequence(type: type, intervalle: intervalle, parametres: params),
+    frequence:
+        Frequence(type: type, intervalle: intervalle, parametres: params),
     categoryId: t.categoryId,
   );
 }
 
 Depense _templateToIncome(RecurringTemplate t) {
   final type = switch (t.frequency) {
+    Frequency.daily => TypeRecurrence.journalier,
     Frequency.weekly => TypeRecurrence.hebdomadaire,
     Frequency.monthly || Frequency.yearly => TypeRecurrence.mensuel,
   };
   List<int>? params;
-  if (t.frequencyDay != null) {
+  if (t.daysOfWeek != null && t.daysOfWeek!.isNotEmpty) {
+    params = t.daysOfWeek!;
+  } else if (t.frequencyDay != null) {
     params = [t.frequencyDay!];
   } else if (t.frequency == Frequency.monthly) {
     params = [1];
@@ -184,7 +191,8 @@ Depense _templateToIncome(RecurringTemplate t) {
     natureMontant: NatureMontant.fixe,
     montantParDefaut: t.amount,
     dateDebut: dateDebut,
-    frequence: Frequence(type: type, intervalle: intervalle, parametres: params),
+    frequence:
+        Frequence(type: type, intervalle: intervalle, parametres: params),
     categoryId: t.categoryId,
   );
 }
@@ -219,11 +227,22 @@ final calendarOccurrencesProvider =
   );
 });
 
-final calendarStatsProvider =
-    Provider<({double totalDepenses, double confirme, double totalRevenus, int nbOccurrences})>(
+final calendarStatsProvider = Provider<
+    ({
+      double totalDepenses,
+      double confirme,
+      double totalRevenus,
+      int nbOccurrences
+    })>(
   (ref) {
-    final occurrences = ref.watch(calendarOccurrencesProvider).valueOrNull ?? [];
-    final incomeIds = ref.watch(_calendarIncomeProvider).valueOrNull?.map((d) => d.id).toSet() ?? {};
+    final occurrences =
+        ref.watch(calendarOccurrencesProvider).valueOrNull ?? [];
+    final incomeIds = ref
+            .watch(_calendarIncomeProvider)
+            .valueOrNull
+            ?.map((d) => d.id)
+            .toSet() ??
+        {};
     double totalDepenses = 0;
     double totalRevenus = 0;
     double confirme = 0;
@@ -247,20 +266,34 @@ final calendarStatsProvider =
   },
 );
 
-final calendarCategoryTotalsProvider = Provider<List<({String? categoryId, double montant})>>(
+final calendarCategoryTotalsProvider =
+    Provider<List<({String? categoryId, double montant})>>(
   (ref) {
-    final occurrences = ref.watch(calendarOccurrencesProvider).valueOrNull ?? [];
-    final incomeIds = ref.watch(_calendarIncomeProvider).valueOrNull?.map((d) => d.id).toSet() ?? {};
+    final occurrences =
+        ref.watch(calendarOccurrencesProvider).valueOrNull ?? [];
+    final incomeIds = ref
+            .watch(_calendarIncomeProvider)
+            .valueOrNull
+            ?.map((d) => d.id)
+            .toSet() ??
+        {};
     final map = <String?, double>{};
     for (final o in occurrences) {
       if (!o.estInclusDansTotal || incomeIds.contains(o.idDepense)) continue;
       map[o.categoryId] = (map[o.categoryId] ?? 0) + o.montantFinal;
     }
-    return map.entries.map((e) => (categoryId: e.key, montant: e.value)).toList()
+    return map.entries
+        .map((e) => (categoryId: e.key, montant: e.value))
+        .toList()
       ..sort((a, b) => b.montant.compareTo(a.montant));
   },
 );
 
 final calendarIncomeIdsProvider = Provider<Set<String>>((ref) {
-  return ref.watch(_calendarIncomeProvider).valueOrNull?.map((d) => d.id).toSet() ?? {};
+  return ref
+          .watch(_calendarIncomeProvider)
+          .valueOrNull
+          ?.map((d) => d.id)
+          .toSet() ??
+      {};
 });
