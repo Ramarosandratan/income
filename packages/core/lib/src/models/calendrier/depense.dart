@@ -14,6 +14,7 @@ class Depense {
     required this.dateDebut,
     this.dateFin,
     this.frequence = const Frequence(type: TypeRecurrence.mensuel),
+    this.categoryId,
   }) : assert(montantParDefaut >= 0, 'Le montant ne peut pas être négatif');
 
   /// Identifiant unique de la dépense récurrente.
@@ -37,6 +38,9 @@ class Depense {
   /// Configuration de la fréquence de récurrence.
   final Frequence frequence;
 
+  /// Identifiant de la catégorie associée (optionnel).
+  final String? categoryId;
+
   factory Depense.fromJson(Map<String, dynamic> json) => Depense(
         id: json['id'] as String,
         titre: json['titre'] as String,
@@ -47,6 +51,7 @@ class Depense {
             ? DateTime.parse(json['date_fin'] as String)
             : null,
         frequence: Frequence.fromJson(json['frequence'] as Map<String, dynamic>),
+        categoryId: json['category_id'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -57,5 +62,6 @@ class Depense {
         'date_debut': dateDebut.toIso8601String(),
         if (dateFin != null) 'date_fin': dateFin!.toIso8601String(),
         'frequence': frequence.toJson(),
+        if (categoryId != null) 'category_id': categoryId,
       };
 }

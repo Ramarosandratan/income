@@ -93,6 +93,13 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- ── #6 : colonnes manquantes sur incomes (frequency + frequency_day) ─────────
+alter table public.incomes add column if not exists frequency public.frequency not null default 'monthly';
+alter table public.incomes add column if not exists frequency_day int;
+
+-- ── #7 : yearly manquant dans l'enum frequency ───────────────────────────────
+alter type public.frequency add value if not exists 'yearly';
+
 -- L'ancienne RPC d'amorçage n'est plus utilisée (remplacée par le trigger).
 drop function if exists public.bootstrap_family(text, text);
 

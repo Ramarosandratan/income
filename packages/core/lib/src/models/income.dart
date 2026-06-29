@@ -11,6 +11,7 @@ class Income {
     required this.amount,
     required this.period,
     required this.frequency,
+    this.frequencyDay,
     required this.createdAt,
   });
 
@@ -21,6 +22,13 @@ class Income {
   final double amount;
   final DateTime period; // 1er du mois
   final Frequency frequency;
+
+  /// Jour configuré pour la fréquence :
+  /// - weekly → 1=lundi … 7=dimanche
+  /// - monthly → 1…31 (jour du mois)
+  /// - yearly → 1…31 (jour du mois, mois = period)
+  final int? frequencyDay;
+
   final DateTime createdAt;
 
   factory Income.fromJson(Map<String, dynamic> json) => Income(
@@ -32,6 +40,7 @@ class Income {
         period: Period.fromSql(json['period'] as String),
         frequency:
             Frequency.fromString(json['frequency'] as String? ?? 'monthly'),
+        frequencyDay: json['frequency_day'] as int?,
         createdAt: DateTime.parse(json['created_at'] as String),
       );
 
@@ -42,5 +51,17 @@ class Income {
         'amount': amount,
         'period': Period.toSql(period),
         'frequency': frequency.name,
+        if (frequencyDay != null) 'frequency_day': frequencyDay,
       };
+
+  /// Libellé lisible de la fréquence.
+  String get frequencyLabel {
+    if (frequencyDay == null) return frequency.labelFr;
+    return switch (frequency) {
+      Frequency.weekly =>
+        '${frequency.shortLabel} ${EnumUtils.dayOfWeekLabel(frequencyDay!)}',
+      Frequency.monthly => '${frequency.labelFr} le $frequencyDay',
+      Frequency.yearly => '${frequency.labelFr} le $frequencyDay/${period.month}',
+    };
+  }
 }

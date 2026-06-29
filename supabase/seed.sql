@@ -72,17 +72,36 @@ insert into public.budgets (family_id, member_id, category_id, period, amount, t
   ('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', null,                                    date_trunc('month', now())::date, 100, 'budget');
 
 -- ── Quelques dépenses ─────────────────────────────────────────────────────────
-insert into public.expenses (family_id, member_id, category_id, amount, note, spent_at, type) values
-  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000001', 35.50, 'Courses',     now() - interval '2 days', 'daily'),
-  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000003', 22.00, 'Cinéma',      now() - interval '1 day',  'daily'),
-  ('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', 'aaaaaaa1-0000-0000-0000-000000000001', 48.90, 'Restaurant',  now() - interval '3 days', 'daily'),
-  ('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', 'aaaaaaa1-0000-0000-0000-000000000002', 60.00, 'Essence',     now(),                     'monthly');
+insert into public.expenses (family_id, member_id, category_id, amount, note, spent_at, type, frequency, frequency_day) values
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000001', 35.50, 'Courses',     now() - interval '2 days', 'daily',  null,   null),
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000003', 22.00, 'Cinéma',      now() - interval '1 day',  'daily',  null,   null),
+  ('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', 'aaaaaaa1-0000-0000-0000-000000000001', 48.90, 'Restaurant',  now() - interval '3 days', 'daily',  null,   null),
+  ('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444', 'aaaaaaa1-0000-0000-0000-000000000002', 60.00, 'Essence',     now(),                     'daily',  'monthly', extract(day from now())::int);
 
 -- ── Objectif d'épargne familial ───────────────────────────────────────────────
 insert into public.savings_goals (family_id, member_id, name, target_amount, current_amount, deadline) values
   ('11111111-1111-1111-1111-111111111111', null, 'Vacances été', 1500, 400, (date_trunc('year', now()) + interval '7 months')::date);
 
--- ── Modèle récurrent (loyer) ─────────────────────────────────────────────────
-insert into public.recurring_templates (family_id, member_id, category_id, label, amount, kind, frequency, next_run) values
+-- ── Modèles récurrents (pour le calendrier prévisionnel) ─────────────────────
+insert into public.recurring_templates (family_id, member_id, category_id, label, amount, kind, frequency, next_run, frequency_day) values
   ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'aaaaaaa1-0000-0000-0000-000000000004', 'Loyer', 950, 'expense', 'monthly',
-   (date_trunc('month', now()) + interval '1 month')::date);
+   date_trunc('month', now())::date, 5),
+  ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'aaaaaaa1-0000-0000-0000-000000000004', 'Électricité', 85, 'expense', 'monthly',
+   date_trunc('month', now())::date, 15),
+  ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', null, 'Forfait mobile', 29.99, 'expense', 'monthly',
+   date_trunc('month', now())::date, -1),
+  ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'aaaaaaa1-0000-0000-0000-000000000003', 'Netflix', 13.99, 'expense', 'monthly',
+   date_trunc('month', now())::date, 10),
+  ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'aaaaaaa1-0000-0000-0000-000000000004', 'Assurance habitation', 180, 'expense', 'monthly',
+   date_trunc('month', now())::date, 1),
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000001', 'Cantine lundi', 12.50, 'expense', 'weekly',
+   date_trunc('month', now())::date, 1),
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000001', 'Cantine mercredi', 12.50, 'expense', 'weekly',
+   date_trunc('month', now())::date, 3),
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000001', 'Cantine vendredi', 12.50, 'expense', 'weekly',
+   date_trunc('month', now())::date, 5),
+  -- Revenus récurrents
+  ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'aaaaaaa1-0000-0000-0000-000000000005', 'Salaire parent', 3200, 'income', 'monthly',
+   date_trunc('month', now())::date, 28),
+  ('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'aaaaaaa1-0000-0000-0000-000000000005', 'Argent de poche', 50, 'income', 'monthly',
+   date_trunc('month', now())::date, 5);

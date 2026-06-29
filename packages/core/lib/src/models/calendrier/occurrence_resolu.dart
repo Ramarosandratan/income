@@ -36,6 +36,7 @@ class OccurrenceResolu {
     required this.montantFinal,
     required this.statutUI,
     required this.estInclusDansTotal,
+    this.categoryId,
   });
 
   /// Référence vers [Depense.id] d'origine.
@@ -57,6 +58,9 @@ class OccurrenceResolu {
   /// true si cette occurrence doit être comptée dans les totaux du mois.
   final bool estInclusDansTotal;
 
+  /// Identifiant de la catégorie associée (optionnel).
+  final String? categoryId;
+
   factory OccurrenceResolu.fromJson(Map<String, dynamic> json) =>
       OccurrenceResolu(
         idDepense: json['id_depense'] as String,
@@ -65,6 +69,7 @@ class OccurrenceResolu {
         montantFinal: (json['montant_final'] as num).toDouble(),
         statutUI: StatutUI.fromString(json['statut_ui'] as String),
         estInclusDansTotal: json['est_inclus_dans_total'] as bool,
+        categoryId: json['category_id'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -74,5 +79,6 @@ class OccurrenceResolu {
         'montant_final': montantFinal,
         'statut_ui': statutUI.name.toUpperCase(),
         'est_inclus_dans_total': estInclusDansTotal,
+        if (categoryId != null) 'category_id': categoryId,
       };
 }

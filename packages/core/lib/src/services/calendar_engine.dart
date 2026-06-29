@@ -71,6 +71,7 @@ class CalendarEngine {
             montantFinal: 0,
             statutUI: StatutUI.suspendu,
             estInclusDansTotal: false,
+            categoryId: d.categoryId,
           );
         } else if (override != null &&
             override.action == ActionOverride.modification) {
@@ -82,6 +83,7 @@ class CalendarEngine {
             statutUI: _deduireStatut(dateCourante, aujourdhui,
                 d.natureMontant, StatutUI.confirme),
             estInclusDansTotal: true,
+            categoryId: d.categoryId,
           );
         } else {
           // Aucun override : montant par défaut.
@@ -94,6 +96,7 @@ class CalendarEngine {
             montantFinal: d.montantParDefaut,
             statutUI: statut,
             estInclusDansTotal: statut != StatutUI.suspendu,
+            categoryId: d.categoryId,
           );
         }
 
