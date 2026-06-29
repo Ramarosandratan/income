@@ -431,9 +431,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   Future<void> _addRecurring(BuildContext context) async {
     final labelCtrl = TextEditingController();
     final amountCtrl = TextEditingController();
-    final allMembers = (await ref.read(membersProvider.future))
-        .where((m) => m.role == UserRole.member)
-        .toList();
+    final allMembers = await ref.read(membersProvider.future);
     final cats = await ref.read(categoriesProvider.future);
     String? memberId = allMembers.isEmpty ? null : allMembers.first.id;
     String? categoryId;
