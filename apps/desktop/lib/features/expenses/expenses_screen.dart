@@ -441,7 +441,6 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     int? frequencyDay;
     List<int>? daysOfWeek;
     int yearlyMonth = DateTime.now().month;
-    var kind = EntryKind.expense;
 
     if (!context.mounted || memberId == null) return;
     await showDialog<void>(
@@ -466,18 +465,6 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                         const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
                         labelText: 'Montant', suffixText: '€'),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<EntryKind>(
-                    initialValue: kind,
-                    decoration: const InputDecoration(labelText: 'Type'),
-                    items: const [
-                      DropdownMenuItem(
-                          value: EntryKind.expense, child: Text('Dépense')),
-                      DropdownMenuItem(
-                          value: EntryKind.income, child: Text('Revenu')),
-                    ],
-                    onChanged: (v) => setState(() => kind = v!),
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
@@ -674,7 +661,7 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                         categoryId: categoryId,
                         label: labelCtrl.text.trim(),
                         amount: value,
-                        kind: kind,
+                        kind: EntryKind.expense,
                         frequency: frequency,
                         frequencyDay: frequencyDay,
                         daysOfWeek: daysOfWeek,
